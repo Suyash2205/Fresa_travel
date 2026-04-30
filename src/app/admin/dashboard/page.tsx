@@ -1,12 +1,10 @@
-import { UserRole } from "@prisma/client";
-
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRole } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 import { AdminActions } from "@/app/admin/dashboard/admin-actions";
 
 export default async function AdminDashboard() {
-  await requireRole(UserRole.ADMIN);
+  await requireRole("ADMIN");
 
   const [agentsCount, travellersCount, referralsCount, statements, agents] = await Promise.all([
     db.agent.count(),

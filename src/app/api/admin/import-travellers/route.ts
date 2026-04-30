@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { UserRole } from "@prisma/client";
 import { parse } from "csv-parse/sync";
 import * as XLSX from "xlsx";
 import { z } from "zod";
@@ -29,7 +28,7 @@ function parseRows(fileName: string, fileBuffer: Buffer) {
 }
 
 export async function POST(req: Request) {
-  const session = await requireRole(UserRole.ADMIN);
+  const session = await requireRole("ADMIN");
   const formData = await req.formData();
   const file = formData.get("file");
   const agentId = String(formData.get("agentId") || "");

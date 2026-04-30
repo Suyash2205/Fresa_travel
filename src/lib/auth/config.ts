@@ -1,10 +1,11 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { UserRole } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { AuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 import { db } from "@/lib/db";
+
+type AppRole = "ADMIN" | "AGENT";
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(db),
@@ -54,7 +55,7 @@ export const authOptions: AuthOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub as string;
-        session.user.role = (token.role as UserRole) ?? UserRole.AGENT;
+        session.user.role = (token.role as AppRole) ?? "AGENT";
       }
       return session;
     },

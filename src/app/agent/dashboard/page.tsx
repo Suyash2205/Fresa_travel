@@ -1,11 +1,9 @@
-import { UserRole } from "@prisma/client";
-
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRole } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 
 export default async function AgentDashboard() {
-  const session = await requireRole(UserRole.AGENT);
+  const session = await requireRole("AGENT");
   const agent = await db.agent.findUniqueOrThrow({
     where: { userId: session.user.id },
     include: {

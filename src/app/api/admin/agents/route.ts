@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-import { Prisma, UserRole } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 import { requireRole } from "@/lib/auth/session";
@@ -16,7 +16,7 @@ const createAgentSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    await requireRole(UserRole.ADMIN);
+    await requireRole("ADMIN");
     const payload = createAgentSchema.parse(await req.json());
 
     const passwordHash = await bcrypt.hash(payload.password, 10);
