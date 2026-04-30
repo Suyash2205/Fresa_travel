@@ -22,6 +22,14 @@ export default async function AdminDashboard() {
     }),
   ]);
 
+  const statementRows = statements as Array<{
+    id: string;
+    month: Date;
+    totalCommission: number | { toString(): string };
+    state: string;
+    agent: { code: string };
+  }>;
+
   return (
     <div className="min-h-screen bg-[#fff8f5] p-6">
       <div className="mx-auto max-w-6xl space-y-6">
@@ -54,7 +62,7 @@ export default async function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {statements.map((item) => (
+                {statementRows.map((item) => (
                   <tr key={item.id} className="border-b last:border-0">
                     <td className="py-3">{item.agent.code}</td>
                     <td className="py-3">{item.month.toISOString().slice(0, 7)}</td>
