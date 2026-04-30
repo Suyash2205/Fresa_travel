@@ -2,6 +2,30 @@ import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRole } from "@/lib/auth/session";
 import { db } from "@/lib/db";
 
+type AgentReferral = {
+  id: string;
+  travellerId: string;
+  commissionAmount: number | { toString(): string };
+  commissionBase: number | { toString(): string };
+  status: string;
+  order: { orderNumber: string | null; shopifyOrderId: string };
+  traveller: { name: string | null; email: string | null; phone: string | null };
+};
+
+type AgentTraveller = {
+  id: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+};
+
+type AgentStatement = {
+  id: string;
+  month: Date;
+  totalCommission: number | { toString(): string };
+  state: string;
+};
+
 export default async function AgentDashboard() {
   const session = await requireRole("AGENT");
   const agent = await db.agent.findUniqueOrThrow({
@@ -13,10 +37,19 @@ export default async function AgentDashboard() {
     },
   });
 
-  const orderedTravellerIds = new Set(agent.orderReferrals.map((x) => x.travellerId));
-  const notOrderedCount = agent.travellers.filter((t) => !orderedTravellerIds.has(t.id)).length;
-  const totalEarned = agent.orderReferrals.reduce((acc, item) => acc + Number(item.commissionAmount), 0);
-  const travellerOrderMap = new Map(agent.orderReferrals.map((referral) => [referral.travellerId, referral]));
+  const orderReferrals = agent.orderReferrals as AgentReferral[];
+  const travellers = agent.travellers as AgentTraveller[];
+  const statements = agent.statements as AgentStatement[];
+
+  const orderedTravellerIds = new Set(orderReferrals.map((referral: AgentReferral) => referral.travellerId));
+  const notOrderedCount = travellers.filter((traveller: AgentTraveller) => !orderedTravellerIds.has(traveller.id)).length;
+  const totalEarned = orderReferrals.reduce(
+    (total: number, referral: AgentReferral) => total + Number(referral.commissionAmount),
+    0,
+  );
+  const travellerOrderMap = new Map(
+    orderReferrals.map((referral: AgentReferral) => [referral.travellerId, referral] as const),
+  );
 
   return (
     <div className="min-h-screen bg-[#fff8f5] p-6">
@@ -30,8 +63,8 @@ export default async function AgentDashboard() {
         </header>
 
         <section className="grid gap-4 md:grid-cols-4">
-          <KpiCard label="Total Referrals" value={agent.travellers.length} />
-          <KpiCard label="Ordered" value={agent.orderReferrals.length} />
+          <KpiCard label="Total Referrals" value={travellers.length} />
+          <KpiCard label="Ordered" value={orderReferrals.length} />
           <KpiCard label="Not Ordered" value={notOrderedCount} />
           <KpiCard label="Total Commission" value={`Rs. ${totalEarned.toFixed(2)}`} />
         </section>
@@ -49,7 +82,7 @@ export default async function AgentDashboard() {
                 </tr>
               </thead>
               <tbody className="text-[#1f1f1f]">
-                {agent.travellers.map((traveller) => {
+                {travellers.map((traveller: AgentTraveller) => {
                   const referral = travellerOrderMap.get(traveller.id);
                   return (
                     <tr key={traveller.id} className="border-b last:border-0 odd:bg-white even:bg-[#fffaf7]">
@@ -70,7 +103,7 @@ export default async function AgentDashboard() {
                     </tr>
                   );
                 })}
-                {agent.travellers.length === 0 ? (
+                {travellers.length === 0 ? (
                   <tr>
                     <td className="py-3 text-[#4f4f4f]" colSpan={4}>
                       No referred travellers found yet.
@@ -99,7 +132,7 @@ export default async function AgentDashboard() {
                 </tr>
               </thead>
               <tbody className="text-[#1f1f1f]">
-                {agent.orderReferrals.map((row) => (
+                {orderReferrals.map((row: AgentReferral) => (
                   <tr key={row.id} className="border-b last:border-0 odd:bg-white even:bg-[#fffaf7]">
                     <td className="py-3">{row.traveller.name || row.traveller.email || row.traveller.phone}</td>
                     <td className="py-3">#{row.order.orderNumber || row.order.shopifyOrderId}</td>
@@ -108,7 +141,7 @@ export default async function AgentDashboard() {
                     <td className="py-3">{row.status}</td>
                   </tr>
                 ))}
-                {agent.orderReferrals.length === 0 ? (
+                {orderReferrals.length === 0 ? (
                   <tr>
                     <td className="py-3 text-[#4f4f4f]" colSpan={5}>
                       No commission transactions yet.
@@ -123,14 +156,14 @@ export default async function AgentDashboard() {
         <section className="rounded-xl bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-lg font-semibold text-[#1d1d1d]">Monthly Statements</h2>
           <div className="space-y-2 text-sm">
-            {agent.statements.map((statement) => (
+            {statements.map((statement: AgentStatement) => (
               <div key={statement.id} className="flex items-center justify-between rounded-md border border-[#f0c7b5] bg-[#fffdfc] p-3 text-[#1f1f1f]">
                 <span>{statement.month.toISOString().slice(0, 7)}</span>
                 <span>Rs. {Number(statement.totalCommission).toFixed(2)}</span>
                 <span>{statement.state}</span>
               </div>
             ))}
-            {agent.statements.length === 0 ? (
+            {statements.length === 0 ? (
               <p className="text-sm text-[#4f4f4f]">No monthly statement generated yet.</p>
             ) : null}
           </div>
