@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import { PrismaClient, UserRole } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
@@ -11,7 +11,7 @@ async function main() {
   await prisma.user.upsert({
     where: { email: adminEmail },
     update: {
-      role: UserRole.ADMIN,
+      role: "ADMIN",
       passwordHash,
       isActive: true,
       name: "Fresa Admin",
@@ -19,7 +19,7 @@ async function main() {
     create: {
       email: adminEmail,
       name: "Fresa Admin",
-      role: UserRole.ADMIN,
+      role: "ADMIN",
       passwordHash,
       isActive: true,
     },
