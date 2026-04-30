@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { z } from "zod";
 
 import { requireRole } from "@/lib/auth/session";
@@ -48,7 +49,7 @@ export async function POST(req: Request) {
       user: { id: result.user.id, email: result.user.email },
     });
   } catch (error) {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2002") {
       const target = (error.meta?.target as string[] | undefined)?.join(", ") || "field";
       return NextResponse.json(
         { error: `Duplicate value for ${target}. Please use a different email/code.` },
