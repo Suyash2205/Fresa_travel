@@ -62,7 +62,7 @@ export default async function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {statementRows.map((item) => (
+                {statementRows.map((item: (typeof statementRows)[number]) => (
                   <tr key={item.id} className="border-b last:border-0">
                     <td className="py-3">{item.agent.code}</td>
                     <td className="py-3">{item.month.toISOString().slice(0, 7)}</td>

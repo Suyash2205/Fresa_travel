@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(payload.password, 10);
 
-    const result = await db.$transaction(async (tx) => {
+    const result = await db.$transaction(async (tx: Prisma.TransactionClient) => {
       const user = await tx.user.create({
         data: {
           name: payload.name,

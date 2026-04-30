@@ -77,7 +77,7 @@ export async function approveStatement(statementId: string, notes?: string) {
 }
 
 export async function markStatementPaid(statementId: string) {
-  return db.$transaction(async (tx) => {
+  return db.$transaction(async (tx: Prisma.TransactionClient) => {
     const statement = await tx.monthlyCommissionStatement.update({
       where: { id: statementId },
       data: { state: "PAID", paidAt: new Date() },
@@ -86,7 +86,9 @@ export async function markStatementPaid(statementId: string) {
 
     if (statement.items.length > 0) {
       await tx.orderReferral.updateMany({
-        where: { id: { in: statement.items.map((item) => item.orderReferralId) } },
+        where: {
+          id: { in: statement.items.map((item: { orderReferralId: string }) => item.orderReferralId) },
+        },
         data: { status: "PAID" },
       });
     }

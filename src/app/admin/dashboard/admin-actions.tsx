@@ -99,7 +99,7 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
         <div className="space-y-2">
           <select name="agentId" required className="w-full rounded-md border border-[#f0c7b5] bg-white px-3 py-2 text-sm text-[#1d1d1d] focus:border-[#fd8756] focus:outline-none">
             <option value="">Select agent</option>
-            {agents.map((agent) => (
+            {agents.map((agent: AgentOption) => (
               <option key={agent.id} value={agent.id}>
                 {agent.code}
               </option>
