@@ -6,15 +6,16 @@ import { AdminActions } from "@/app/admin/dashboard/admin-actions";
 export default async function AdminDashboard() {
   await requireRole("ADMIN");
 
-  const [agentsCount, travellersCount, referralsCount, statements, agents] = await Promise.all([
+  const statements = await db.monthlyCommissionStatement.findMany({
+    orderBy: [{ month: "desc" }, { createdAt: "desc" }],
+    include: { agent: true },
+    take: 10,
+  });
+
+  const [agentsCount, travellersCount, referralsCount, agents] = await Promise.all([
     db.agent.count(),
     db.traveller.count(),
     db.orderReferral.count(),
-    db.monthlyCommissionStatement.findMany({
-      orderBy: [{ month: "desc" }, { createdAt: "desc" }],
-      include: { agent: true },
-      take: 10,
-    }),
     db.agent.findMany({
       select: { id: true, code: true },
       orderBy: { code: "asc" },
