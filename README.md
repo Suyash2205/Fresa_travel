@@ -1,3 +1,61 @@
+# Fresa Partner Referral Portal (MVP)
+
+Separate portal for travel agents and Fresa admins to track referrals, commission accruals, and monthly payout status.
+
+## MVP Features
+
+- Admin/agent role-based login (`next-auth` credentials).
+- Admin-created agents.
+- Admin traveller list import (`.csv` or `.xlsx`) mapped to an agent.
+- First-agent-wins attribution with email OR phone matching.
+- Shopify order webhook ingestion and 5% commission calculation on subtotal.
+- Monthly statement generation, approval, and mark-paid workflow.
+- Agent dashboard with referral conversion and commission details.
+- Reconciliation endpoint for unmatched orders.
+
+## Tech Stack
+
+- Next.js App Router
+- PostgreSQL + Prisma
+- Tailwind CSS
+- NextAuth (credentials)
+
+## Setup
+
+1. Install dependencies:
+   - `npm install`
+2. Configure `.env` values:
+   - `DATABASE_URL`
+   - `NEXTAUTH_URL`
+   - `NEXTAUTH_SECRET`
+   - `SHOPIFY_WEBHOOK_SECRET`
+   - `RECONCILE_TOKEN`
+3. Generate and migrate schema:
+   - `npm run prisma:generate`
+   - `npm run prisma:migrate`
+4. Seed initial admin:
+   - `npm run prisma:seed`
+5. Start app:
+   - `npm run dev`
+
+## Default Seed Admin
+
+- Email: `admin@fresafoods.in`
+- Password: `ChangeMe123!`
+
+Override with:
+- `SEED_ADMIN_EMAIL`
+- `SEED_ADMIN_PASSWORD`
+
+## Core Endpoints
+
+- `POST /api/admin/agents`
+- `POST /api/admin/import-travellers`
+- `POST /api/shopify/webhooks/orders`
+- `POST /api/admin/statements/generate`
+- `POST /api/admin/statements/:id/approve`
+- `POST /api/admin/statements/:id/mark-paid`
+- `POST /api/internal/reconcile`
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
