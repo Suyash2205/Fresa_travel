@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { requireRole } from "@/lib/auth/session";
 import { db } from "@/lib/db";
@@ -17,7 +18,7 @@ export default async function AdminDashboard() {
     db.traveller.count(),
     db.orderReferral.count(),
     db.agent.findMany({
-      select: { id: true, code: true },
+      select: { id: true, code: true, contactName: true },
       orderBy: { code: "asc" },
     }),
   ]);
@@ -30,60 +31,99 @@ export default async function AdminDashboard() {
     agent: { code: string };
   }>;
 
+  const stateStyle: Record<string, string> = {
+    DRAFT: "bg-yellow-50 text-yellow-700 border-yellow-200",
+    APPROVED: "bg-blue-50 text-blue-700 border-blue-200",
+    PAID: "bg-green-50 text-green-700 border-green-200",
+  };
+
   return (
-    <div className="min-h-screen bg-[#fff8f5] p-6">
-      <div className="mx-auto max-w-6xl space-y-6">
-        <header className="flex items-center justify-between rounded-xl bg-white p-4 shadow-sm">
-          <div>
-            <h1 className="text-2xl font-semibold text-[#1d1d1d]">Admin Dashboard</h1>
-            <p className="text-sm text-[#666]">Manage agents, imports, commissions and payouts.</p>
-          </div>
-          <LogoutButton />
-        </header>
+    <div className="min-h-screen bg-[#f8f3fb]">
+      {/* Navbar */}
+      <nav className="bg-[#442037] px-6 py-3 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-3">
+          <Image
+            src="https://www.fresafoods.in/cdn/shop/files/fresa-new-logo.png?v=1740643169&width=300"
+            alt="Fresa Foods"
+            width={100}
+            height={34}
+            className="brightness-0 invert"
+            unoptimized
+          />
+          <span className="hidden sm:block h-5 w-px bg-white/20" />
+          <span className="hidden sm:block text-xs font-semibold text-white/60 uppercase tracking-widest">Admin</span>
+        </div>
+        <LogoutButton />
+      </nav>
 
-        <section className="grid gap-4 md:grid-cols-3">
-          <KpiCard label="Active Agents" value={agentsCount} />
-          <KpiCard label="Referred Travellers" value={travellersCount} />
-          <KpiCard label="Matched Orders" value={referralsCount} />
-        </section>
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8 space-y-6">
+        {/* Page title */}
+        <div>
+          <h1 className="text-xl font-bold text-[#1a1523]">Dashboard</h1>
+          <p className="text-sm text-[#6b5f7a]">Manage agents, travellers, orders and commission payouts.</p>
+        </div>
 
+        {/* KPI cards */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <KpiCard label="Active Agents" value={agentsCount} icon="👥" />
+          <KpiCard label="Referred Travellers" value={travellersCount} icon="✈️" />
+          <KpiCard label="Matched Orders" value={referralsCount} icon="🛒" />
+        </div>
+
+        {/* Action forms */}
         <AdminActions agents={agents} />
 
-        <section className="rounded-xl bg-white p-4 shadow-sm">
-          <h2 className="mb-3 text-lg font-semibold text-[#1d1d1d]">Latest Monthly Statements</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b">
-                <tr className="text-[#444]">
-                  <th className="pb-2">Agent</th>
-                  <th className="pb-2">Month</th>
-                  <th className="pb-2">Commission</th>
-                  <th className="pb-2">State</th>
-                </tr>
-              </thead>
-              <tbody>
-                {statementRows.map((item: (typeof statementRows)[number]) => (
-                  <tr key={item.id} className="border-b last:border-0">
-                    <td className="py-3">{item.agent.code}</td>
-                    <td className="py-3">{item.month.toISOString().slice(0, 7)}</td>
-                    <td className="py-3">Rs. {Number(item.totalCommission).toFixed(2)}</td>
-                    <td className="py-3">{item.state}</td>
+        {/* Statements table */}
+        {statementRows.length > 0 && (
+          <div className="rounded-2xl bg-white border border-[#e0ccea] shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-[#f0e6f6]">
+              <h2 className="text-sm font-semibold text-[#1a1523]">Latest Monthly Statements</h2>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-[#f0e6f6] bg-[#faf6fc]">
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#6b5f7a]">Agent</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#6b5f7a]">Month</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#6b5f7a]">Commission</th>
+                    <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-[#6b5f7a]">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-[#f5eef8]">
+                  {statementRows.map((item) => (
+                    <tr key={item.id} className="hover:bg-[#faf6fc] transition">
+                      <td className="px-6 py-4 font-medium text-[#1a1523]">{item.agent.code}</td>
+                      <td className="px-6 py-4 text-[#6b5f7a]">
+                        {new Date(item.month).toLocaleDateString("en-IN", { month: "long", year: "numeric" })}
+                      </td>
+                      <td className="px-6 py-4 font-semibold text-[#442037]">
+                        ₹{Number(item.totalCommission).toLocaleString("en-IN", { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${stateStyle[item.state] ?? "bg-gray-50 text-gray-600 border-gray-200"}`}>
+                          {item.state}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </section>
-      </div>
+        )}
+      </main>
     </div>
   );
 }
 
-function KpiCard({ label, value }: { label: string; value: number }) {
+function KpiCard({ label, value, icon }: { label: string; value: number; icon: string }) {
   return (
-    <div className="rounded-xl border border-[#ffd8c8] bg-white p-4">
-      <p className="text-sm text-[#666]">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-[#1d1d1d]">{value}</p>
+    <div className="rounded-2xl bg-white border border-[#e0ccea] shadow-sm px-6 py-5 flex items-center gap-4">
+      <div className="text-2xl">{icon}</div>
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-wider text-[#6b5f7a]">{label}</p>
+        <p className="text-3xl font-bold text-[#442037] mt-0.5">{value}</p>
+      </div>
     </div>
   );
 }
