@@ -6,19 +6,19 @@ import { FormEvent, useState } from "react";
 type AgentOption = { id: string; code: string; contactName?: string | null };
 
 const inputClass =
-  "w-full rounded-lg border border-[#e0ccea] bg-white px-3 py-2.5 text-sm text-[#1a1523] placeholder:text-[#b09bbf] focus:border-[#a378ad] focus:outline-none focus:ring-2 focus:ring-[#a378ad]/20 transition";
+  "w-full rounded-lg border border-[#e5d2ba] bg-white px-3 py-2.5 text-sm text-[#1a130c] placeholder:text-[#c0a88a] focus:border-[#e06b2a] focus:outline-none focus:ring-2 focus:ring-[#e06b2a]/20 transition";
 
 const selectClass =
-  "w-full rounded-lg border border-[#e0ccea] bg-white px-3 py-2.5 text-sm text-[#1a1523] focus:border-[#a378ad] focus:outline-none focus:ring-2 focus:ring-[#a378ad]/20 transition";
+  "w-full rounded-lg border border-[#e5d2ba] bg-white px-3 py-2.5 text-sm text-[#1a130c] focus:border-[#e06b2a] focus:outline-none focus:ring-2 focus:ring-[#e06b2a]/20 transition";
 
 const btnPrimary =
-  "w-full rounded-lg bg-[#a378ad] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#8f649a] transition disabled:opacity-60";
+  "w-full rounded-lg bg-[#e06b2a] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#c85a20] transition disabled:opacity-60";
 
 function SectionCard({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-white border border-[#e0ccea] shadow-sm p-5">
-      <h3 className="text-sm font-semibold text-[#1a1523] mb-0.5">{title}</h3>
-      {description && <p className="text-xs text-[#6b5f7a] mb-4">{description}</p>}
+    <div className="rounded-2xl bg-white border border-[#e5d2ba] shadow-sm p-5">
+      <h3 className="text-sm font-semibold text-[#1a130c] mb-0.5">{title}</h3>
+      {description && <p className="text-xs text-[#7a6555] mb-4">{description}</p>}
       {!description && <div className="mb-4" />}
       {children}
     </div>
@@ -158,17 +158,17 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
             <AgentSelect name="agentId" agents={agents} />
             <input
               name="file" required type="file" accept=".csv,.xlsx,.xls"
-              className="w-full rounded-lg border border-[#e0ccea] bg-white px-3 py-2 text-sm text-[#1a1523] file:mr-3 file:rounded-md file:border-0 file:bg-[#f3eaf8] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#442037] transition"
+              className="w-full rounded-lg border border-[#e5d2ba] bg-white px-3 py-2 text-sm text-[#1a130c] file:mr-3 file:rounded-md file:border-0 file:bg-[#fdf3ea] file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-[#1a2e1e] transition"
             />
-            <p className="text-xs text-[#6b5f7a]">Columns: <code className="bg-[#f3eaf8] px-1 rounded text-[#442037]">name</code>, <code className="bg-[#f3eaf8] px-1 rounded text-[#442037]">email</code>, <code className="bg-[#f3eaf8] px-1 rounded text-[#442037]">phone</code></p>
+            <p className="text-xs text-[#7a6555]">Columns: <code className="bg-[#fdf3ea] px-1 rounded text-[#1a2e1e]">name</code>, <code className="bg-[#fdf3ea] px-1 rounded text-[#1a2e1e]">email</code>, <code className="bg-[#fdf3ea] px-1 rounded text-[#1a2e1e]">phone</code></p>
             <button type="submit" className={btnPrimary}>Upload &amp; Import</button>
           </form>
         </SectionCard>
 
         <SectionCard title="Commission Actions" description="Generate monthly statements for all agents based on matched orders.">
           <div className="space-y-3">
-            <div className="rounded-xl bg-[#f8f3fb] border border-[#e0ccea] p-4 text-sm text-[#6b5f7a]">
-              Creates or updates a <strong className="text-[#1a1523]">Draft</strong> statement for every agent with unprocessed referrals this month.
+            <div className="rounded-xl bg-[#fdf3ea] border border-[#e5d2ba] p-4 text-sm text-[#7a6555]">
+              Creates or updates a <strong className="text-[#1a130c]">Draft</strong> statement for every agent with unprocessed referrals this month.
             </div>
             <button onClick={generateStatements} className={btnPrimary}>
               Generate Monthly Statements
@@ -187,7 +187,7 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
               <input name="email" type="email" placeholder="Email" className={inputClass} />
               <input name="phone" type="tel" placeholder="Phone" className={inputClass} />
             </div>
-            <p className="text-xs text-[#6b5f7a]">At least one of email or phone is required.</p>
+            <p className="text-xs text-[#7a6555]">At least one of email or phone is required.</p>
             <button type="submit" className={btnPrimary}>Add Traveller</button>
           </form>
         </SectionCard>
@@ -202,7 +202,7 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
               <input name="orderNumber" placeholder="Order # (optional)" className={inputClass} />
               <input name="subtotalAmount" type="number" min="1" step="0.01" required placeholder="Order value (₹)" className={inputClass} />
             </div>
-            <p className="text-xs text-[#6b5f7a]">The customer must already exist in a traveller list. Commission is 5% of order value.</p>
+            <p className="text-xs text-[#7a6555]">The customer must already exist in a traveller list. Commission is 5% of order value.</p>
             <button type="submit" className={btnPrimary}>Record Order</button>
           </form>
         </SectionCard>
