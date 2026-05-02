@@ -90,6 +90,34 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
     router.refresh();
   }
 
+  async function addOrder(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("Recording order...");
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
+    const response = await fetch("/api/admin/orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        customerEmail: form.get("customerEmail") || undefined,
+        customerPhone: form.get("customerPhone") || undefined,
+        orderNumber: form.get("orderNumber") || undefined,
+        subtotalAmount: form.get("subtotalAmount"),
+        currency: "INR",
+      }),
+    });
+
+    const data = await response.json().catch(() => null);
+    if (!response.ok) {
+      setStatus(data?.error || "Could not record order.");
+      return;
+    }
+
+    setStatus(`Order recorded. Commission: Rs. ${Number(data.commissionAmount).toFixed(2)} attributed to agent.`);
+    formElement.reset();
+    router.refresh();
+  }
+
   async function generateStatements() {
     setStatus("Generating monthly statements...");
     const response = await fetch("/api/admin/statements/generate", {
@@ -168,6 +196,21 @@ export function AdminActions({ agents }: { agents: AgentOption[] }) {
           </button>
         </div>
         <p className="mt-2 text-xs text-[#8a8a8a]">At least one of email or phone is required.</p>
+      </form>
+
+      <form onSubmit={addOrder} className="rounded-xl border border-[#ffd8c8] bg-white p-4 shadow-sm">
+        <h3 className="mb-1 text-base font-semibold text-[#1d1d1d]">Add Order Manually</h3>
+        <p className="mb-3 text-xs text-[#8a8a8a]">Automatically links to the agent whose referral matches the email or phone.</p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <input name="customerEmail" type="email" placeholder="Customer email" className="rounded-md border border-[#f0c7b5] bg-white px-3 py-2 text-sm text-[#1d1d1d] placeholder:text-[#8a8a8a] focus:border-[#fd8756] focus:outline-none" />
+          <input name="customerPhone" type="tel" placeholder="Customer phone" className="rounded-md border border-[#f0c7b5] bg-white px-3 py-2 text-sm text-[#1d1d1d] placeholder:text-[#8a8a8a] focus:border-[#fd8756] focus:outline-none" />
+          <input name="orderNumber" placeholder="Order # (optional)" className="rounded-md border border-[#f0c7b5] bg-white px-3 py-2 text-sm text-[#1d1d1d] placeholder:text-[#8a8a8a] focus:border-[#fd8756] focus:outline-none" />
+          <input name="subtotalAmount" type="number" min="1" step="0.01" required placeholder="Order value (Rs.)" className="rounded-md border border-[#f0c7b5] bg-white px-3 py-2 text-sm text-[#1d1d1d] placeholder:text-[#8a8a8a] focus:border-[#fd8756] focus:outline-none" />
+          <button type="submit" className="rounded-md bg-[#fd8756] px-3 py-2 text-sm font-medium text-white hover:bg-[#e97647]">
+            Record Order
+          </button>
+        </div>
+        <p className="mt-2 text-xs text-[#8a8a8a]">At least one of email or phone is required. The traveller must already exist in the system.</p>
       </form>
 
       {status ? (
